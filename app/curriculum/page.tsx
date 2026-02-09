@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils"
 
 export default function Curriculum() {
     const [activeModule, setActiveModule] = useState<number>(1)
-    const { progress, completedLessons } = useStore()
+    const { progress = {}, completedLessons = {} } = useStore()
 
     const modules = [
         {
