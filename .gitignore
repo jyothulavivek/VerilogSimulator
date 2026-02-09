@@ -28,6 +28,9 @@ yarn-error.log*
 .env*.local
 .env
 
+# Auto-generated build files
+lib/buildTime.ts
+
 # vercel
 .vercel
 

@@ -3,15 +3,21 @@
 import { useEffect, useState } from "react"
 import { Clock } from "lucide-react"
 
+// Import build time constant (generated at build time)
+let BUILD_TIME = new Date().toISOString();
+try {
+    const buildTimeModule = require("@/lib/buildTime");
+    BUILD_TIME = buildTimeModule.BUILD_TIME;
+} catch {
+    // Fallback if file doesn't exist yet
+}
+
 export const LastUpdated = () => {
     const [timeText, setTimeText] = useState<string>("")
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
         setMounted(true)
-
-        // Get build time from environment or use fallback
-        const buildTime = process.env.NEXT_PUBLIC_BUILD_TIME || new Date().toISOString()
 
         const formatDate = (isoString: string) => {
             try {
@@ -39,11 +45,11 @@ export const LastUpdated = () => {
             }
         }
 
-        setTimeText(formatDate(buildTime))
+        setTimeText(formatDate(BUILD_TIME))
 
         // Update every minute
         const interval = setInterval(() => {
-            setTimeText(formatDate(buildTime))
+            setTimeText(formatDate(BUILD_TIME))
         }, 60000)
 
         return () => clearInterval(interval)

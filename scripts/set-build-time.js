@@ -1,23 +1,22 @@
-// Script to set build time as environment variable
+// Script to set build time as a TypeScript constant
 const fs = require('fs');
 const path = require('path');
 
 const buildTime = new Date().toISOString();
-const envPath = path.join(__dirname, '..', '.env.local');
+const constantsPath = path.join(__dirname, '..', 'lib', 'buildTime.ts');
 
-// Read existing .env.local or create new
-let envContent = '';
-if (fs.existsSync(envPath)) {
-    envContent = fs.readFileSync(envPath, 'utf8');
+// Create lib directory if it doesn't exist
+const libDir = path.dirname(constantsPath);
+if (!fs.existsSync(libDir)) {
+    fs.mkdirSync(libDir, { recursive: true });
 }
 
-// Update or add NEXT_PUBLIC_BUILD_TIME
-const buildTimeRegex = /NEXT_PUBLIC_BUILD_TIME=.*/;
-if (buildTimeRegex.test(envContent)) {
-    envContent = envContent.replace(buildTimeRegex, `NEXT_PUBLIC_BUILD_TIME=${buildTime}`);
-} else {
-    envContent += `\nNEXT_PUBLIC_BUILD_TIME=${buildTime}\n`;
-}
+// Write build time constant
+const content = `// Auto-generated file - do not edit manually
+// Generated at build time
 
-fs.writeFileSync(envPath, envContent);
+export const BUILD_TIME = "${buildTime}";
+`;
+
+fs.writeFileSync(constantsPath, content);
 console.log(`✓ Build time set to: ${buildTime}`);
