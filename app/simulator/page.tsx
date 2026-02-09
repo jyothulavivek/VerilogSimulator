@@ -11,7 +11,7 @@ import { TestResult } from "@/components/TestResult"
 import { SuccessCard } from "@/components/SuccessCard"
 import { CoinShower } from "@/components/CoinShower"
 import { useRewards } from "@/hooks/useRewards"
-import { compileAndRun } from "@/lib/simulator"
+import { DynamicSimulator } from "@/lib/dynamic-simulator"
 import { parseVCD } from "@/lib/vcdParser"
 import { Lightbulb, Rocket, Activity, Code2, ListChecks, Info, ChevronRight, GraduationCap } from "lucide-react"
 import { RichLessonView } from "@/components/RichLessonView"
@@ -55,29 +55,44 @@ function WideSimulatorContent() {
 
     const handleRun = async () => {
         setIsSimulating(true)
-        const result = await compileAndRun(designCode, tbCode)
-        setIsSimulating(false)
 
-        if (result.success) {
-            const parsedData = parseVCD(result.vcd)
-            setSimulationResult({
-                ...result,
-                signals: parsedData.map(s => ({
-                    name: s.signal,
-                    values: s.transitions,
-                    color: s.signal.includes("clk") ? "#00D9A3" : "#FF6B9D"
-                }))
-            })
+        try {
+            // Use client-side DynamicSimulator for production compatibility
+            const simulator = new DynamicSimulator(designCode, tbCode)
+            const result = simulator.simulate()
 
-            // Trigger success mock
-            if (designCode.length > 20) {
-                setTimeout(() => {
-                    setShowSuccess(true)
-                    celebrateSuccess(100, 2)
-                }, 1000)
+            setIsSimulating(false)
+
+            if (result.success) {
+                const parsedData = parseVCD(result.vcd)
+                setSimulationResult({
+                    ...result,
+                    signals: parsedData.map(s => ({
+                        name: s.signal,
+                        values: s.transitions,
+                        color: s.signal.includes("clk") ? "#00D9A3" : "#FF6B9D"
+                    }))
+                })
+
+                // Trigger success mock
+                if (designCode.length > 20) {
+                    setTimeout(() => {
+                        setShowSuccess(true)
+                        celebrateSuccess(100, 2)
+                    }, 1000)
+                }
+            } else {
+                setSimulationResult(result)
             }
-        } else {
-            setSimulationResult(result)
+        } catch (error: any) {
+            setIsSimulating(false)
+            setSimulationResult({
+                success: false,
+                output: '',
+                error: error.message || 'Simulation failed',
+                vcd: '',
+                signals: []
+            })
         }
     }
 
