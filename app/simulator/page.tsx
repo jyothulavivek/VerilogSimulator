@@ -10,6 +10,7 @@ import { WaveformViewer } from "@/components/WaveformViewer"
 import { TestResult } from "@/components/TestResult"
 import { SuccessCard } from "@/components/SuccessCard"
 import { CoinShower } from "@/components/CoinShower"
+import { HintModal } from "@/components/HintModal" // Added HintModal import
 import { useRewards } from "@/hooks/useRewards"
 import { DynamicSimulator } from "@/lib/dynamic-simulator"
 import { parseVCD } from "@/lib/vcdParser"
@@ -36,15 +37,16 @@ function WideSimulatorContent() {
     const [isSimulating, setIsSimulating] = useState(false)
     const [showSuccess, setShowSuccess] = useState(false)
     const [isTheoryExpanded, setIsTheoryExpanded] = useState(false)
+    const [showHintModal, setShowHintModal] = useState(false)
 
-    const { animations, celebrateSuccess, spendGems } = useRewards()
+    const { animations, celebrateSuccess, spendGems, gems } = useRewards()
 
     // Load Content
     useEffect(() => {
         let lesson = null
         if (trackId === 'verilog') lesson = verilogLessons.find(l => l.id === moduleId) || verilogLessons[0]
         if (trackId === 'sv') lesson = systemVerilogLessons.find(l => l.id === moduleId) || systemVerilogLessons[0]
-        if (trackId === 'uvm') lesson = uvmLessons.find(l => l.id === moduleId) || advancedVerificationLessons.find(l => l.id === moduleId) || uvmLessons[0]
+        if (trackId === 'uvm') lesson = [...uvmLessons, ...advancedVerificationLessons].find(l => l.id === moduleId) || uvmLessons[0]
 
         if (lesson) {
             setActiveLesson(lesson)
@@ -145,11 +147,19 @@ function WideSimulatorContent() {
 
                         <div className="pt-8 border-t border-white/5">
                             <button
-                                onClick={() => spendGems(1)}
-                                className="w-full h-12 border border-[#8B5CF6]/30 bg-[#8B5CF6]/5 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black text-[#8B5CF6] uppercase hover:bg-[#8B5CF6]/10 transition-all shadow-lg"
+                                onClick={() => {
+                                    if (gems >= 1) {
+                                        spendGems(1)
+                                        setShowHintModal(true)
+                                    } else {
+                                        alert("Not enough gems! Complete more lessons to earn gems.")
+                                    }
+                                }}
+                                disabled={gems < 1}
+                                className="w-full h-12 border border-[#8B5CF6]/30 bg-[#8B5CF6]/5 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black text-[#8B5CF6] uppercase hover:bg-[#8B5CF6]/10 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Lightbulb size={16} />
-                                <span>Unlock Engineering Hint (-1💎)</span>
+                                Unlock Hint (1 Gem) {gems < 1 && "- Not Enough Gems"}
                             </button>
                         </div>
                     </div>
@@ -283,6 +293,14 @@ function WideSimulatorContent() {
                     />
                 </div>
             )}
+
+            {/* Hint Modal */}
+            <HintModal
+                isOpen={showHintModal}
+                onClose={() => setShowHintModal(false)}
+                hint={activeLesson?.hint || "Try breaking down the problem into smaller steps. Look at the module inputs and outputs carefully."}
+                lessonTitle={activeLesson?.title || "Lesson"}
+            />
         </div>
     )
 }

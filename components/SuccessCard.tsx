@@ -92,7 +92,26 @@ export const SuccessCard = ({ coins, gems, badge, stats, onNext }: SuccessCardPr
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                    <button className="flex-1 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/10 flex items-center justify-center transition-colors">
+                    <button
+                        onClick={() => {
+                            const shareText = `🎉 I just completed a Verilog lesson on VLSI Academy! Earned ${coins} coins and ${gems} gems! 🚀`
+                            if (navigator.share) {
+                                navigator.share({
+                                    title: 'VLSI Academy Achievement',
+                                    text: shareText,
+                                    url: window.location.href
+                                }).catch(() => {
+                                    // Fallback to clipboard
+                                    navigator.clipboard.writeText(shareText + '\n' + window.location.href)
+                                    alert('Link copied to clipboard!')
+                                })
+                            } else {
+                                navigator.clipboard.writeText(shareText + '\n' + window.location.href)
+                                alert('Achievement copied to clipboard!')
+                            }
+                        }}
+                        className="flex-1 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/10 flex items-center justify-center transition-colors"
+                    >
                         <Share2 size={18} className="text-gray-400" />
                     </button>
                     <button className="flex-1 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/10 flex items-center justify-center transition-colors">

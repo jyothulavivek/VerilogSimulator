@@ -38,6 +38,7 @@ export const useRewards = () => {
 
     return {
         balance: { coins, gems, streak },
+        gems, // Expose gems directly for easier access
         animations: { isShowerActive },
         celebrateSuccess,
         canAffordHint,
