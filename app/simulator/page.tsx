@@ -12,6 +12,7 @@ import { SuccessCard } from "@/components/SuccessCard"
 import { CoinShower } from "@/components/CoinShower"
 import { HintModal } from "@/components/HintModal" // Added HintModal import
 import { useRewards } from "@/hooks/useRewards"
+import { useStore } from "@/lib/store" // Import store for progress tracking
 import { DynamicSimulator } from "@/lib/dynamic-simulator"
 import { parseVCD } from "@/lib/vcdParser"
 import { Lightbulb, Rocket, Activity, Code2, ListChecks, Info, ChevronRight, GraduationCap } from "lucide-react"
@@ -40,6 +41,7 @@ function WideSimulatorContent() {
     const [showHintModal, setShowHintModal] = useState(false)
 
     const { animations, celebrateSuccess, spendGems, gems } = useRewards()
+    const { updateProgress } = useStore() // Add updateProgress from store
 
     // Load Content
     useEffect(() => {
@@ -95,11 +97,14 @@ function WideSimulatorContent() {
                     }))
                 })
 
-                // Trigger success mock
+                // Trigger success and SAVE PROGRESS
                 if (designCode.length > 20) {
                     setTimeout(() => {
                         setShowSuccess(true)
                         celebrateSuccess(100, 2)
+
+                        // CRITICAL: Mark lesson as completed in store
+                        updateProgress(trackId, moduleId, true)
                     }, 1000)
                 }
             } else {
