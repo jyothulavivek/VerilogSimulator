@@ -53,6 +53,25 @@ function WideSimulatorContent() {
         }
     }, [trackId, moduleId])
 
+    // Navigate to next lesson
+    const handleNextLesson = () => {
+        let lessons: any[] = []
+        if (trackId === 'verilog') lessons = verilogLessons
+        if (trackId === 'sv') lessons = systemVerilogLessons
+        if (trackId === 'uvm') lessons = [...uvmLessons, ...advancedVerificationLessons]
+
+        const currentIndex = lessons.findIndex(l => l.id === moduleId)
+        if (currentIndex >= 0 && currentIndex < lessons.length - 1) {
+            const nextLesson = lessons[currentIndex + 1]
+            // Navigate to next lesson
+            window.location.href = `/simulator?track=${trackId}&module=${nextLesson.id}`
+        } else {
+            // Last lesson - go back to curriculum
+            window.location.href = '/curriculum'
+        }
+        setShowSuccess(false)
+    }
+
     const handleRun = async () => {
         setIsSimulating(true)
 
@@ -260,7 +279,7 @@ function WideSimulatorContent() {
                         gems={2}
                         stats={{ time: "0.8s", tests: "100%", power: "1.2mW" }}
                         badge={{ icon: "trophy", title: "Verification Engineer", name: "DV Master" }}
-                        onNext={() => setShowSuccess(false)}
+                        onNext={handleNextLesson}
                     />
                 </div>
             )}
