@@ -47,6 +47,7 @@ export default function StudentDashboard() {
             </div>
             <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase leading-[0.9]">
               Engineering<br />Performance
+              <span className="ml-4 text-sm bg-[#00D9A3] text-black px-2 py-1 rounded align-top not-italic tracking-normal">v1.1</span>
             </h2>
           </div>
 
